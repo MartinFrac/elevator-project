@@ -32,6 +32,19 @@ namespace Elevator
             displays.Add(displayOne);
         }
 
+        private void log(String log)
+        {
+            var noOfRows = dataSet.Tables[0].Rows.Count;
+            var lastId = Int32.Parse(dataSet.Tables[0].Rows[noOfRows - 1].ItemArray[0].ToString());
+            var nextId = lastId + 1;
+            DataRow row = dataSet.Tables[0].NewRow();
+            row[0] = nextId;
+            row[1] = log;
+            row[2] = DateTime.Now;
+            dataSet.Tables[0].Rows.Add(row);
+            dataGridView1.Rows.Insert(0, new object[] { row[1], row[2] });
+        }
+
         private void exit_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -60,21 +73,25 @@ namespace Elevator
         private void buttonZero_Click(object sender, EventArgs e)
         {
             moveElevator(0);
+            log("Button on the floor zero clicked");
         }
 
         private void buttonOne_Click(object sender, EventArgs e)
         {
             moveElevator(1);
+            log("Button on the floor one clicked");
         }
 
         private void control1_Click(object sender, EventArgs e)
         {
             moveElevator(1);
+            log("Button one on the control panel clicked");
         }
 
         private void control0_Click(object sender, EventArgs e)
         {
             moveElevator(0);
+            log("Button zero on the control panel clicked");
         }
 
         private void changeDisplays(int floor)
@@ -110,19 +127,20 @@ namespace Elevator
             } else
             {
                 timer1.Stop();
+                log("Elevator moved from floor No. " + currentFloor + " to floor No. " + nextFloor);
                 currentFloor = nextFloor;
                 changeDisplays(currentFloor);
-                builder = new OleDbCommandBuilder(adapter);
-                int noOfRows = dataSet.Tables[0].Rows.Count;
-                int lastId = Int32.Parse(dataSet.Tables[0].Rows[noOfRows - 1].ItemArray[0].ToString());
-                var nextId = lastId + 1;
-                DataRow row = dataSet.Tables[0].NewRow();
-                row[0] = nextId;
-                row[1] = "Elevator moved to floor No. " + currentFloor.ToString();
-                row[2] = DateTime.Now;
-                dataSet.Tables[0].Rows.Add(row);
-                dataGridView1.Rows.Insert(0, new object[] { row[1], row[2] });
-                adapter.Update(dataSet.Tables[0]);
+                //builder = new OleDbCommandBuilder(adapter);
+                //int noOfRows = dataSet.Tables[0].Rows.Count;
+                //int lastId = Int32.Parse(dataSet.Tables[0].Rows[noOfRows - 1].ItemArray[0].ToString());
+                //var nextId = lastId + 1;
+                //DataRow row = dataSet.Tables[0].NewRow();
+                //row[0] = nextId;
+                //row[1] = "Elevator moved to floor No. " + currentFloor.ToString();
+                //row[2] = DateTime.Now;
+                //dataSet.Tables[0].Rows.Add(row);
+                //dataGridView1.Rows.Insert(0, new object[] { row[1], row[2] });
+                //adapter.Update(dataSet.Tables[0]);
             }
         }
 
@@ -143,6 +161,12 @@ namespace Elevator
             {
                 MessageBox.Show(ex.ToString());
             }
+        }
+
+        private void storeLogs_Click(object sender, EventArgs e)
+        {
+            builder = new OleDbCommandBuilder(adapter);
+            adapter.Update(dataSet.Tables[0]);
         }
     }
 }
