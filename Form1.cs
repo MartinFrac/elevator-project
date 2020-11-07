@@ -130,36 +130,6 @@ namespace Elevator
                 log("Elevator moved from floor No. " + currentFloor + " to floor No. " + nextFloor);
                 currentFloor = nextFloor;
                 changeDisplays(currentFloor);
-                //builder = new OleDbCommandBuilder(adapter);
-                //int noOfRows = dataSet.Tables[0].Rows.Count;
-                //int lastId = Int32.Parse(dataSet.Tables[0].Rows[noOfRows - 1].ItemArray[0].ToString());
-                //var nextId = lastId + 1;
-                //DataRow row = dataSet.Tables[0].NewRow();
-                //row[0] = nextId;
-                //row[1] = "Elevator moved to floor No. " + currentFloor.ToString();
-                //row[2] = DateTime.Now;
-                //dataSet.Tables[0].Rows.Add(row);
-                //dataGridView1.Rows.Insert(0, new object[] { row[1], row[2] });
-                //adapter.Update(dataSet.Tables[0]);
-            }
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            String connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=Elevator.accdb";
-            DataSet dataSet = new DataSet();
-            OleDbConnection connection = new OleDbConnection(connectionString);
-            try
-            {
-                OleDbDataAdapter adapter = new OleDbDataAdapter("Select * from operations", connection);
-                BindingSource bindingSource = new BindingSource();
-                dataGridView1.DataSource = bindingSource;
-                adapter.Fill(dataSet);
-                adapter.Dispose();
-                bindingSource.DataSource = dataSet;
-            } catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
             }
         }
 
