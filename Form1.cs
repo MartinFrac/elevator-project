@@ -11,14 +11,11 @@ namespace Elevator
     public partial class Form1 : Form
     {
         public static String connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=Elevator.accdb";
-        private OleDbCommandBuilder builder;
         private Dictionary<int, int> floorsToPixelHeight = new Dictionary<int, int>();
         private List<Label> displays = new List<Label>(); 
         private int currentFloor;
         private int nextFloor;
         DataSet dataSet;
-        OleDbDataAdapter adapter;
-        OleDbConnection connection;
         public Form1()
         {
             currentFloor = 0;
@@ -52,21 +49,19 @@ namespace Elevator
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            connection = new OleDbConnection(connectionString);
-            try
+            using (OleDbConnection connection = new OleDbConnection(connectionString))
             {
-                adapter = new OleDbDataAdapter("Select * from operations", connection);
-                adapter.Fill(dataSet, "operations");
-                DataTable operations = dataSet.Tables[0];
-                IEnumerable<DataRow> rows = operations.AsEnumerable();
-                foreach (DataRow row in rows.Reverse())
+                String query = "Select * from operations";
+                using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, connection))
                 {
-                    dataGridView1.Rows.Add(new Object[] { row["content"], row["entered"] });
+                    adapter.Fill(dataSet, "operations");
+                    DataTable operations = dataSet.Tables[0];
+                    IEnumerable<DataRow> rows = operations.AsEnumerable();
+                    foreach (DataRow row in rows.Reverse())
+                    {
+                        dataGridView1.Rows.Add(new Object[] { row["content"], row["entered"] });
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
             }
         }
 
@@ -135,8 +130,21 @@ namespace Elevator
 
         private void storeLogs_Click(object sender, EventArgs e)
         {
-            builder = new OleDbCommandBuilder(adapter);
-            adapter.Update(dataSet.Tables[0]);
+            using (OleDbConnection connection = new OleDbConnection(connectionString))
+            {
+                String query = "Select * from operations";
+                using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, connection))
+                {
+                    OleDbCommandBuilder builder = new OleDbCommandBuilder(adapter);
+                    try
+                    {
+                    adapter.Update(dataSet.Tables[0]);
+                    } catch (Exception ex)
+                    {
+                        log(ex.Message);
+                    }
+                }
+            }
         }
     }
 }
