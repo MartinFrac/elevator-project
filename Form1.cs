@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Data.OleDb;
 using System.Data;
 using System.Linq;
+using System.ComponentModel;
 
 namespace Elevator
 {
@@ -129,6 +130,11 @@ namespace Elevator
 
         private void storeLogs_Click(object sender, EventArgs e)
         {
+            backgroundWorker1.RunWorkerAsync();
+        }
+
+        private void storeLogs(BackgroundWorker backgroundWorker)
+        {
             using (OleDbConnection connection = new OleDbConnection(connectionString))
             {
                 String query = "Select * from operations";
@@ -137,13 +143,26 @@ namespace Elevator
                     OleDbCommandBuilder builder = new OleDbCommandBuilder(adapter);
                     try
                     {
-                    adapter.Update(dataSet.Tables[0]);
-                    } catch (Exception ex)
+                        adapter.Update(dataSet.Tables[0]);
+                    }
+                    catch (Exception ex)
                     {
                         log(ex.Message);
                     }
                 }
             }
+        }
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            BackgroundWorker backgroundWorker = sender as BackgroundWorker;
+            storeLogs(backgroundWorker);
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled) Console.WriteLine("Operation cancelled");
+            else if (e.Error != null) Console.WriteLine(e.Error.Message);
         }
     }
 }

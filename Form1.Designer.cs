@@ -45,7 +45,8 @@ namespace Elevator
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.operations = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.storeLogs = new System.Windows.Forms.Button();
+            this.storeLogsButton = new System.Windows.Forms.Button();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.exit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.elevator)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.buttonZero)).BeginInit();
@@ -181,22 +182,27 @@ namespace Elevator
             this.dateTime.ReadOnly = true;
             this.dateTime.Width = 120;
             // 
-            // storeLogs
+            // storeLogsButton
             // 
-            this.storeLogs.Location = new System.Drawing.Point(1284, 155);
-            this.storeLogs.Name = "storeLogs";
-            this.storeLogs.Size = new System.Drawing.Size(511, 53);
-            this.storeLogs.TabIndex = 14;
-            this.storeLogs.Text = "Store Logs";
-            this.storeLogs.UseVisualStyleBackColor = true;
-            this.storeLogs.Click += new System.EventHandler(this.storeLogs_Click);
+            this.storeLogsButton.Location = new System.Drawing.Point(1284, 155);
+            this.storeLogsButton.Name = "storeLogsButton";
+            this.storeLogsButton.Size = new System.Drawing.Size(511, 53);
+            this.storeLogsButton.TabIndex = 14;
+            this.storeLogsButton.Text = "Store Logs";
+            this.storeLogsButton.UseVisualStyleBackColor = true;
+            this.storeLogsButton.Click += new System.EventHandler(this.storeLogs_Click);
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1920, 1080);
-            this.Controls.Add(this.storeLogs);
+            this.Controls.Add(this.storeLogsButton);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.control0);
             this.Controls.Add(this.control1);
@@ -236,7 +242,8 @@ namespace Elevator
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.DataGridViewTextBoxColumn operations;
         private System.Windows.Forms.DataGridViewTextBoxColumn dateTime;
-        private System.Windows.Forms.Button storeLogs;
+        private System.Windows.Forms.Button storeLogsButton;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 
