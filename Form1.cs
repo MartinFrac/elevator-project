@@ -5,28 +5,85 @@ using System.Data.OleDb;
 using System.Data;
 using System.Linq;
 using System.ComponentModel;
+using System.Threading;
 
 namespace Elevator
 {
     public partial class Form1 : Form
     {
+        //connection
         public static String connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=Elevator.accdb";
+        //data structures
+        private HashSet<int> floors = new HashSet<int> { 0, 1 };
         private Dictionary<int, int> floorsToPixelHeight = new Dictionary<int, int>();
-        private List<Label> displays = new List<Label>(); 
+        private Dictionary<int, int> PixelHeightToFloors = new Dictionary<int, int>();
+        private List<Label> displays = new List<Label>();
+        public List<SortedSet<int>> queues = new List<SortedSet<int>>();
+        public Boolean[] visited = new Boolean[2];
+        public HashSet<int> toBeVisitedSet = new HashSet<int>();
+        public Queue<int> queueToBeVisited = new Queue<int>();
+        public List<int> floorOrder = new List<int>();
+        //variables
         private int currentFloor;
         private int nextFloor;
+        private int lastFloor;
+        public int CurrentFloor {
+            get => this.currentFloor; 
+            set
+            {
+                if (floors.Contains(value))
+                {
+                    this.currentFloor = value;
+                }
+            } 
+        }
+        public int NextFloor {
+            get => this.nextFloor;
+            set
+            {
+                if (floors.Contains(value))
+                {
+                    this.nextFloor = value;
+                }
+            }
+        }
+        public int LastFloor
+        {
+            get => this.lastFloor;
+            set
+            {
+                if (floors.Contains(value))
+                {
+                    this.lastFloor = value;
+                }
+            }
+        }
+        //data
         DataSet dataSet;
+        //state
+        private State _state;
         public Form1()
         {
+            _state = new StationaryState();
+            TransitionTo(_state);
             currentFloor = 0;
             nextFloor = 0;
             floorsToPixelHeight.Add(0, 625);
             floorsToPixelHeight.Add(1, 75);
+            PixelHeightToFloors.Add(625, 0);
+            PixelHeightToFloors.Add(75, 1);
             dataSet = new DataSet("operationsDS");
             InitializeComponent();
             displays.Add(displayControl);
             displays.Add(displayZero);
             displays.Add(displayOne);
+        }
+
+        public void TransitionTo(State state)
+        {
+            Console.WriteLine($"Form1: Transition to {state.GetType().Name}.");
+            this._state = state;
+            this._state.SetContext(this);
         }
 
         private void log(String log)
@@ -99,32 +156,92 @@ namespace Elevator
 
         private void moveElevator(int floor)
         {
-            if (currentFloor != floor && !timer1.Enabled)
+            if (!toBeVisitedSet.Contains(floor) && elevator.Top != floorsToPixelHeight[floor])
             {
-                nextFloor = floor;
-                timer1.Start();
+                _state.MoveElevator(floor);
             }
+        }
+
+        private void openDoors()
+        {
+            Thread.Sleep(2000);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            int currentPixels = floorsToPixelHeight[currentFloor];
+            int currentPixels = elevator.Top;
             int nextPixels = floorsToPixelHeight[nextFloor];
-            if (elevator.Top != nextPixels)
+            updateCurrentFloor(currentPixels);
+            if (currentPixels != nextPixels)
             {
-                if (nextPixels > currentPixels)
-                {
-                    elevator.Top += 10;
-                } else
+                stopIfOnTheWay();
+                if (currentPixels > nextPixels)
                 {
                     elevator.Top -= 10;
                 }
-            } else
+                else if (currentPixels < nextPixels)
+                {
+                    elevator.Top += 10;
+                }
+            }
+            else
+            {
+                stopElevator();
+                findNextFloor();
+            }
+                
+        }
+
+        private void findNextFloor()
+        {
+            if (queueToBeVisited.Count == 0)
             {
                 timer1.Stop();
-                log("Elevator moved from floor No. " + currentFloor + " to floor No. " + nextFloor);
-                currentFloor = nextFloor;
-                changeDisplays(currentFloor);
+                TransitionTo(new StationaryState());
+            } 
+            else 
+            {
+                while (true)
+                {
+                    int pop = queueToBeVisited.Dequeue();
+                    if (visited[pop])
+                    {
+                        visited[pop] = true;
+                    } else
+                    {
+                        nextFloor = pop;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void updateCurrentFloor(int currentPixels)
+        {
+            if (PixelHeightToFloors.ContainsKey(currentPixels))
+            {
+                currentFloor = PixelHeightToFloors[currentPixels];
+            }
+        }
+
+        private void stopElevator()
+        {
+            toBeVisitedSet.Remove(currentFloor);
+            visited[currentFloor] = true;
+            log("Elevator moved from floor No. " + lastFloor + " to floor No. " + currentFloor);
+            lastFloor = currentFloor;
+            changeDisplays(currentFloor);
+            openDoors();
+        }
+
+        private void stopIfOnTheWay()
+        {
+            int currentPixels = elevator.Top;
+            if (PixelHeightToFloors.ContainsKey(currentPixels)) {
+                int floor = PixelHeightToFloors[currentPixels];
+                if (toBeVisitedSet.Contains(floor)) {
+                    stopElevator();
+                }
             }
         }
 
@@ -163,6 +280,11 @@ namespace Elevator
         {
             if (e.Cancelled) Console.WriteLine("Operation cancelled");
             else if (e.Error != null) Console.WriteLine(e.Error.Message);
+        }
+
+        private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
+        {
+
         }
     }
 }
