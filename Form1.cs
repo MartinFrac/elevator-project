@@ -164,7 +164,7 @@ namespace Elevator
 
         private void openDoors()
         {
-            Thread.Sleep(2000);
+            
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -186,7 +186,7 @@ namespace Elevator
             }
             else
             {
-                stopElevator();
+                backgroundWorker2.RunWorkerAsync();
                 findNextFloor();
             }
                 
@@ -284,7 +284,12 @@ namespace Elevator
 
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         {
+            
+        }
 
+        private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            stopElevator();
         }
     }
 }
