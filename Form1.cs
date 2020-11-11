@@ -18,7 +18,6 @@ namespace Elevator
         private Dictionary<int, int> floorsToPixelHeight = new Dictionary<int, int>();
         private Dictionary<int, int> PixelHeightToFloors = new Dictionary<int, int>();
         private List<Label> displays = new List<Label>();
-        public List<SortedSet<int>> queues = new List<SortedSet<int>>();
         public Boolean[] visited = new Boolean[2];
         public HashSet<int> toBeVisitedSet = new HashSet<int>();
         public Queue<int> queueToBeVisited = new Queue<int>();
@@ -177,16 +176,16 @@ namespace Elevator
                 stopIfOnTheWay();
                 if (currentPixels > nextPixels)
                 {
-                    elevator.Top -= 10;
+                    elevator.Top -= 5;
                 }
                 else if (currentPixels < nextPixels)
                 {
-                    elevator.Top += 10;
+                    elevator.Top += 5;
                 }
             }
             else
             {
-                backgroundWorker2.RunWorkerAsync();
+                stopElevator();
                 findNextFloor();
             }
                 
@@ -280,16 +279,6 @@ namespace Elevator
         {
             if (e.Cancelled) Console.WriteLine("Operation cancelled");
             else if (e.Error != null) Console.WriteLine(e.Error.Message);
-        }
-
-        private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
-        {
-            
-        }
-
-        private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            stopElevator();
         }
     }
 }
