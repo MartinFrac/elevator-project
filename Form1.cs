@@ -159,6 +159,10 @@ namespace Elevator
 
         private void moveElevator(int floor)
         {
+            if (elevator.Top == floorsToPixelHeight[floor])
+            {
+                openDoors();
+            }
             if (!toBeVisitedSet.Contains(floor) && elevator.Top != floorsToPixelHeight[floor])
             {
                 _state.MoveElevator(floor);
@@ -167,6 +171,7 @@ namespace Elevator
 
         private void openDoors()
         {
+            log("doors opening on floor No. " + currentFloor);
             doorsTimer.Start();
         }
 
