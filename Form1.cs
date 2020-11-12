@@ -22,7 +22,9 @@ namespace Elevator
         public HashSet<int> toBeVisitedSet = new HashSet<int>();
         public Queue<int> queueToBeVisited = new Queue<int>();
         public List<int> floorOrder = new List<int>();
+        public Dictionary<int, List<PictureBox>> floorToDoors = new Dictionary<int, List<PictureBox>>();
         //variables
+        private Boolean isDoorClosed = true;
         private int currentFloor;
         private int nextFloor;
         private int lastFloor;
@@ -67,12 +69,14 @@ namespace Elevator
             TransitionTo(_state);
             currentFloor = 0;
             nextFloor = 0;
-            floorsToPixelHeight.Add(0, 625);
-            floorsToPixelHeight.Add(1, 75);
-            PixelHeightToFloors.Add(625, 0);
-            PixelHeightToFloors.Add(75, 1);
+            floorsToPixelHeight.Add(0, 650);
+            floorsToPixelHeight.Add(1, 135);
+            PixelHeightToFloors.Add(650, 0);
+            PixelHeightToFloors.Add(135, 1);
             dataSet = new DataSet("operationsDS");
             InitializeComponent();
+            floorToDoors.Add(0, new List<PictureBox>() { doorZeroLeft, doorZeroRight });
+            floorToDoors.Add(1, new List<PictureBox>() { doorOneLeft, doorOneRight });
             displays.Add(displayControl);
             displays.Add(displayZero);
             displays.Add(displayOne);
@@ -163,30 +167,33 @@ namespace Elevator
 
         private void openDoors()
         {
-            
+            doorsTimer.Start();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            int currentPixels = elevator.Top;
-            int nextPixels = floorsToPixelHeight[nextFloor];
-            updateCurrentFloor(currentPixels);
-            if (currentPixels != nextPixels)
+            if (!doorsTimer.Enabled)
             {
-                stopIfOnTheWay();
-                if (currentPixels > nextPixels)
+                int currentPixels = elevator.Top;
+                int nextPixels = floorsToPixelHeight[nextFloor];
+                updateCurrentFloor(currentPixels);
+                if (currentPixels != nextPixels)
                 {
-                    elevator.Top -= 5;
+                    stopIfOnTheWay();
+                    if (currentPixels > nextPixels)
+                    {
+                        elevator.Top -= 5;
+                    }
+                    else if (currentPixels < nextPixels)
+                    {
+                        elevator.Top += 5;
+                    }
                 }
-                else if (currentPixels < nextPixels)
+                else
                 {
-                    elevator.Top += 5;
+                    stopElevator();
+                    findNextFloor();
                 }
-            }
-            else
-            {
-                stopElevator();
-                findNextFloor();
             }
                 
         }
@@ -280,5 +287,44 @@ namespace Elevator
             if (e.Cancelled) Console.WriteLine("Operation cancelled");
             else if (e.Error != null) Console.WriteLine(e.Error.Message);
         }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            List<PictureBox> doors = floorToDoors[currentFloor];
+            if (isDoorClosed)
+            {
+                if (doors[0].Left != (int)DoorLeftLocation.LeftOpen)
+                {
+                    doors[0].Left -= 1;
+                    doors[1].Left += 1;
+                }
+                else
+                {
+                    isDoorClosed = false;
+                    Thread.Sleep(1000);
+                }
+            }
+             else
+            {
+                if (doors[0].Left != (int)DoorLeftLocation.LeftClosed)
+                {
+                    doors[0].Left += 1;
+                    doors[1].Left -= 1;
+                }
+                else
+                {
+                    isDoorClosed = true;
+                    doorsTimer.Stop();
+                }
+            }
+        }
+    }
+
+    enum DoorLeftLocation
+    {
+        LeftOpen = 243,
+        LeftClosed = 463,
+        RightOpen = 903,
+        RightClosed = 783
     }
 }
