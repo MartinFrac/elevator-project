@@ -9,6 +9,7 @@
 
 #mein
 *.sln
+database/
 
 # User-specific files
 *.rsuser

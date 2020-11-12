@@ -21,7 +21,6 @@ namespace Elevator
         public Boolean[] visited = new Boolean[2];
         public HashSet<int> toBeVisitedSet = new HashSet<int>();
         public Queue<int> queueToBeVisited = new Queue<int>();
-        public List<int> floorOrder = new List<int>();
         public Dictionary<int, List<PictureBox>> floorToDoors = new Dictionary<int, List<PictureBox>>();
         //variables
         private Boolean isDoorClosed = true;
