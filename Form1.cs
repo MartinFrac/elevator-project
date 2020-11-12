@@ -12,7 +12,7 @@ namespace Elevator
     public partial class Form1 : Form
     {
         //connection
-        public static String connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=Elevator.accdb";
+        public static String connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=..\\..\\database\\Elevator.accdb";
         //data structures
         private HashSet<int> floors = new HashSet<int> { 0, 1 };
         private Dictionary<int, int> floorsToPixelHeight = new Dictionary<int, int>();
