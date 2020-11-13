@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.ComponentModel;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Elevator
 {
@@ -113,12 +114,18 @@ namespace Elevator
                 String query = "Select * from operations";
                 using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, connection))
                 {
-                    adapter.Fill(dataSet, "operations");
-                    DataTable operations = dataSet.Tables[0];
-                    IEnumerable<DataRow> rows = operations.AsEnumerable();
-                    foreach (DataRow row in rows.Reverse())
+                    try
                     {
-                        dataGridView1.Rows.Add(new Object[] { row["content"], row["entered"] });
+                        adapter.Fill(dataSet, "operations");
+                        DataTable operations = dataSet.Tables[0];
+                        IEnumerable<DataRow> rows = operations.AsEnumerable();
+                        foreach (DataRow row in rows.Reverse())
+                        {
+                            dataGridView1.Rows.Add(new Object[] { row["content"], row["entered"] });
+                        }
+                    } catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
                     }
                 }
             }
@@ -274,7 +281,7 @@ namespace Elevator
                     }
                     catch (Exception ex)
                     {
-                        log(ex.Message);
+                        Debug.WriteLine(ex.Message);
                     }
                 }
             }
